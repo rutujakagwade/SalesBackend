@@ -7,7 +7,8 @@ const memberSchema = new mongoose.Schema(
     password: { type: String, required: true },
     type: { type: String, enum: ["admin", "user"], required: true },
     inviteToken: { type: String, required: null },
-    status: { type: String, enum: ["pending", "active", "inactive"], default: "pending" }
+    status: { type: String, enum: ["pending", "active", "inactive"], default: "pending" },
+    balance: { type: Number, default: 0 }
   },
   { timestamps: true }
 );

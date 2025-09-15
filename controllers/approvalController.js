@@ -34,7 +34,9 @@ export const listApprovals = async (req, res) => {
       query.submittedAt = { $gte: start };
     }
 
-    const approvals = await Approval.find(query).populate("member", "name email");
+  const approvals = await Approval.find(query).populate("member", "name email");
+
+
     res.json({ approvals });   // ✅ always wrap in object
   } catch (e) {
     res.status(500).json({ message: e.message });

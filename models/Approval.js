@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const approvalSchema = new mongoose.Schema(
   {
-    member: { type: mongoose.Schema.Types.ObjectId, ref: "Member", required: true },
+    member: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     purpose: { type: String, required: true },
     amount: { type: Number, required: true },
     status: { type: String, enum: ["pending", "approved", "denied"], default: "pending" },

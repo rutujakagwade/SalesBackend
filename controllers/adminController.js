@@ -73,6 +73,10 @@ export const listMembers = async (req, res) => {
 // =======================
 // Add Member
 // =======================
+
+// =======================
+// Add Member
+// =======================
 export const addMember = async (req, res) => {
   try {
     const { email, password, type, name } = req.body;
@@ -83,8 +87,11 @@ export const addMember = async (req, res) => {
     const inviteToken = randomInvite();
     const hash = await bcrypt.hash(password, 10);
 
+    // Move this here, after getting name and email from req.body
+   const memberName = name || email.split("@")[0]; // fallback if name is missing
+
     const member = await Member.create({
-      name,
+      name: memberName,
       email,
       password: hash,
       type,
@@ -98,7 +105,7 @@ export const addMember = async (req, res) => {
       html: `
         <h3>Welcome to CASE</h3>
         <p>Your account was created by Admin.</p>
-        <p><b>Name:</b> ${name}</p>
+        <p><b>Name:</b> ${memberName}</p>
         <p><b>Email:</b> ${email}</p>
         <p><b>Password:</b> ${password}</p>
         <p><b>Token:</b> ${inviteToken}</p>
@@ -108,5 +115,42 @@ export const addMember = async (req, res) => {
     res.status(201).json({ message: "Member invited", id: member._id });
   } catch (e) {
     res.status(500).json({ message: e.message });
+  }
+};
+
+export const getAdminProfile = async (req, res) => {
+  try {
+    // Use Member model instead of Admin
+    const admin = await Member.findById(req.user.id).select("-password");
+
+    // Optionally ensure the type is admin
+    if (!admin || admin.type !== "admin") 
+      return res.status(404).json({ message: "Admin not found" });
+
+    res.json(admin);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Update admin profile
+export const updateAdminProfile = async (req, res) => {
+  try {
+    const { name, avatar } = req.body;
+
+    const updatedAdmin = await Member.findByIdAndUpdate(
+      req.user.id,
+      { name, avatar },
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    if (!updatedAdmin || updatedAdmin.type !== "admin")
+      return res.status(404).json({ message: "Admin not found" });
+
+    res.json(updatedAdmin);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
   }
 };
